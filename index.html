@@ -542,6 +542,7 @@
     .history-time, .history-network { color: var(--muted); font-size: .76rem; }
     .history-value strong { display: block; font-family: "IBM Plex Mono", monospace; font-size: .98rem; }
     .history-value span { color: var(--muted); font-size: .68rem; }
+    .history-value.unavailable strong { font-family: "IBM Plex Sans", sans-serif; font-size: .84rem; line-height: 1.25; }
     .history-label { width: 100%; min-width: 0; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; font-size: .8rem; }
     .history-label::placeholder { color: var(--muted); }
     .history-label:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-color: transparent; }
@@ -727,7 +728,7 @@
         <div class="speed-control">
           <div>
             <strong id="speedControlTitle">Siap menguji koneksi</strong>
-            <p id="speedControlCopy">Tes memakai beberapa endpoint untuk ping dan sekitar 5 MB data untuk mengukur unduhan.</p>
+            <p id="speedControlCopy">Tes unduh dimulai dari 100 KB dan hanya memakai data lebih besar bila koneksi mencukupi.</p>
           </div>
           <button class="primary" id="speedStartButton" type="button">MULAI TES</button>
         </div>
@@ -739,7 +740,7 @@
 
         <div class="speed-results" id="speedResults" aria-live="polite">
           <div class="speed-result"><span>Ping median</span><strong id="speedPing">—</strong><small>RTT beberapa endpoint</small></div>
-          <div class="speed-result"><span>Kecepatan unduh</span><strong id="speedDownload">—</strong><small>Megabit per detik</small></div>
+          <div class="speed-result"><span>Kecepatan unduh</span><strong id="speedDownload">—</strong><small id="speedDownloadNote">Megabit per detik</small></div>
           <div class="speed-result"><span>Jenis koneksi</span><strong id="speedConnection">—</strong><small>Deteksi browser</small></div>
         </div>
         <p class="speed-error hidden" id="speedError" role="alert"></p>
@@ -903,6 +904,7 @@
       var speedProgressFill = document.getElementById("speedProgressFill");
       var speedPing = document.getElementById("speedPing");
       var speedDownload = document.getElementById("speedDownload");
+      var speedDownloadNote = document.getElementById("speedDownloadNote");
       var speedConnection = document.getElementById("speedConnection");
       var speedError = document.getElementById("speedError");
       var speedHistory = document.getElementById("speedHistory");
@@ -1116,27 +1118,75 @@
         return median(samples);
       }
 
-      async function measureDownload() {
-        var bytesRequested = 5000000;
+      function formatDetectedSpeed(mbps) {
+        if (!isFinite(mbps) || mbps <= 0) return "mendeteksi…";
+        var kilobytesPerSecond = mbps * 125;
+        if (kilobytesPerSecond < 100) {
+          return kilobytesPerSecond.toLocaleString("id-ID", { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + " KB/dtk";
+        }
+        return mbps.toLocaleString("id-ID", { minimumFractionDigits: 1, maximumFractionDigits: 2 }) + " Mbps";
+      }
+
+      async function downloadStage(bytesRequested, label, onProgress) {
         var controller = new AbortController();
-        var timer = setTimeout(function () { controller.abort(); }, 20000);
+        var timeoutMs = 60000;
+        var timer = setTimeout(function () { controller.abort(); }, timeoutMs);
         var started = performance.now();
+        var received = 0;
         try {
-          var response = await fetch("https://speed.cloudflare.com/__down?bytes=" + bytesRequested + "&t=" + Date.now(), {
+          var response = await fetch("https://speed.cloudflare.com/__down?bytes=" + bytesRequested + "&t=" + Date.now() + "-" + Math.random(), {
             method: "GET",
             mode: "cors",
             cache: "no-store",
             credentials: "omit",
             signal: controller.signal
           });
-          if (!response.ok) throw new Error("Server unduhan menolak tes.");
-          var buffer = await response.arrayBuffer();
+          if (!response.ok) throw new Error("download-unavailable");
+
+          if (response.body && typeof response.body.getReader === "function") {
+            var reader = response.body.getReader();
+            while (true) {
+              var chunk = await reader.read();
+              if (chunk.done) break;
+              received += chunk.value ? chunk.value.byteLength : 0;
+              var currentSeconds = (performance.now() - started) / 1000;
+              if (currentSeconds > 0 && received > 0) {
+                onProgress((received * 8) / currentSeconds / 1000000, label, received, bytesRequested);
+              }
+            }
+          } else {
+            var buffer = await response.arrayBuffer();
+            received = buffer.byteLength;
+          }
+
           var elapsedSeconds = (performance.now() - started) / 1000;
-          if (buffer.byteLength < bytesRequested * 0.9 || elapsedSeconds <= 0) throw new Error("Data unduhan tidak lengkap.");
-          return (buffer.byteLength * 8) / elapsedSeconds / 1000000;
+          if (received < bytesRequested * 0.85 || elapsedSeconds <= 0) throw new Error("download-incomplete");
+          var mbps = (received * 8) / elapsedSeconds / 1000000;
+          onProgress(mbps, label, received, bytesRequested);
+          return mbps;
         } finally {
           clearTimeout(timer);
         }
+      }
+
+      async function measureDownload(onProgress) {
+        var stages = [
+          { bytes: 100000, label: "100 KB", minimumToContinue: 0.5 },
+          { bytes: 1000000, label: "1 MB", minimumToContinue: 5 },
+          { bytes: 5000000, label: "5 MB", minimumToContinue: Infinity }
+        ];
+        var lastMeasured = null;
+        for (var i = 0; i < stages.length; i++) {
+          var stage = stages[i];
+          try {
+            lastMeasured = await downloadStage(stage.bytes, stage.label, onProgress);
+          } catch (error) {
+            if (lastMeasured != null) return lastMeasured;
+            throw new Error("download-too-slow");
+          }
+          if (lastMeasured < stage.minimumToContinue) break;
+        }
+        return lastMeasured;
       }
 
       function renderSpeedHistory() {
@@ -1145,14 +1195,30 @@
           return;
         }
         speedHistory.innerHTML = speedRuns.map(function (run, index) {
+          var downloadHtml = run.download == null
+            ? '<div class="history-value unavailable"><strong>tidak terukur</strong><span>koneksi terlalu lambat</span></div>'
+            : '<div class="history-value"><strong>' + run.download.toFixed(1) + ' Mbps</strong><span>unduh</span></div>';
           return '<article class="history-item">' +
             '<time class="history-time" datetime="' + escapeHtml(run.iso) + '">' + escapeHtml(run.time) + '</time>' +
             '<span class="history-network">' + escapeHtml(run.connection) + '</span>' +
             '<div class="history-value"><strong>' + Math.round(run.ping) + ' ms</strong><span>ping</span></div>' +
-            '<div class="history-value"><strong>' + run.download.toFixed(1) + ' Mbps</strong><span>unduh</span></div>' +
+            downloadHtml +
             '<input class="history-label" type="text" maxlength="40" aria-label="Label APN untuk hasil pukul ' + escapeHtml(run.time) + '" placeholder="Label, mis. APN default" value="' + escapeHtml(run.label) + '" data-history-index="' + index + '" />' +
             '</article>';
         }).join("");
+      }
+
+      function addSpeedRun(ping, download) {
+        var now = new Date();
+        speedRuns.unshift({
+          iso: now.toISOString(),
+          time: now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+          connection: connectionLabel(),
+          ping: ping,
+          download: download,
+          label: ""
+        });
+        renderSpeedHistory();
       }
 
       async function startConnectionTest() {
@@ -1161,37 +1227,53 @@
         speedStartButton.disabled = true;
         speedStartButton.textContent = "SEDANG MENGUJI";
         document.getElementById("speedControlTitle").textContent = "Tes sedang berjalan";
-        document.getElementById("speedControlCopy").textContent = "Biarkan halaman terbuka dan hindari unduhan lain sampai selesai.";
+        document.getElementById("speedControlCopy").textContent = "Mulai dari unduhan 100 KB. Biarkan halaman terbuka sampai selesai.";
         speedError.classList.add("hidden");
         speedPing.textContent = "—";
-        speedDownload.textContent = "—";
+        speedDownload.textContent = "Mengukur…";
+        speedDownloadNote.textContent = "kecepatan terdeteksi akan muncul";
         speedConnection.textContent = connectionLabel();
         setSpeedProgress(5, "Menyiapkan beberapa endpoint…");
+
         try {
           var ping = await measurePing();
           speedPing.textContent = Math.round(ping) + " ms";
-          setSpeedProgress(65, "Mengunduh data uji 5 MB…");
-          var download = await measureDownload();
-          speedDownload.textContent = download.toFixed(1) + " Mbps";
-          setSpeedProgress(100, "Tes koneksi selesai");
-          var now = new Date();
-          speedRuns.unshift({
-            iso: now.toISOString(),
-            time: now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-            connection: connectionLabel(),
-            ping: ping,
-            download: download,
-            label: ""
-          });
-          renderSpeedHistory();
-          document.getElementById("speedControlTitle").textContent = "Hasil siap dibandingkan";
-          document.getElementById("speedControlCopy").textContent = "Beri label APN di Riwayat, lalu ganti APN dan tes lagi.";
-        } catch (error) {
-          speedError.textContent = (error && error.message ? error.message : "Tes koneksi gagal.") + " Coba lagi setelah memastikan internet aktif.";
+          setSpeedProgress(65, "Memulai unduhan uji 100 KB…");
+
+          try {
+            var download = await measureDownload(function (mbps, label, received, requested) {
+              var detected = formatDetectedSpeed(mbps);
+              var stageBase = label === "100 KB" ? 65 : label === "1 MB" ? 77 : 88;
+              var stageRange = label === "100 KB" ? 11 : label === "1 MB" ? 10 : 10;
+              var percent = stageBase + Math.round(Math.min(1, received / requested) * stageRange);
+              speedDownload.textContent = detected;
+              speedDownloadNote.textContent = "terdeteksi saat uji " + label;
+              setSpeedProgress(Math.min(98, percent), "Mengukur unduhan " + label + " · terdeteksi " + detected);
+            });
+            speedDownload.textContent = download.toFixed(1) + " Mbps";
+            speedDownloadNote.textContent = "hasil unduhan adaptif";
+            setSpeedProgress(100, "Tes koneksi selesai");
+            addSpeedRun(ping, download);
+            document.getElementById("speedControlTitle").textContent = "Hasil siap dibandingkan";
+            document.getElementById("speedControlCopy").textContent = "Beri label APN di Riwayat, lalu ganti APN dan tes lagi.";
+          } catch (downloadError) {
+            speedDownload.textContent = "Tidak terukur";
+            speedDownloadNote.textContent = "koneksi terlalu lambat";
+            addSpeedRun(ping, null);
+            speedError.textContent = "Unduhan tidak selesai — koneksi terlalu lambat untuk mengukur kecepatan. Hasil ping tetap tersimpan.";
+            speedError.classList.remove("hidden");
+            setSpeedProgress(100, "Ping tersimpan · unduhan tidak selesai");
+            document.getElementById("speedControlTitle").textContent = "Hasil ping berhasil disimpan";
+            document.getElementById("speedControlCopy").textContent = "Beri label APN di Riwayat. Kecepatan unduh ditandai tidak terukur.";
+          }
+        } catch (pingError) {
+          speedDownload.textContent = "—";
+          speedDownloadNote.textContent = "unduhan belum dijalankan";
+          speedError.textContent = "Ping belum dapat diukur dari koneksi ini. Pastikan internet aktif, lalu coba lagi.";
           speedError.classList.remove("hidden");
-          setSpeedProgress(100, "Tes tidak selesai");
-          document.getElementById("speedControlTitle").textContent = "Tes belum berhasil";
-          document.getElementById("speedControlCopy").textContent = "Tidak ada hasil yang ditambahkan ke Riwayat.";
+          setSpeedProgress(100, "Tes ping tidak selesai");
+          document.getElementById("speedControlTitle").textContent = "Ping belum dapat diukur";
+          document.getElementById("speedControlCopy").textContent = "Belum ada hasil yang dapat disimpan ke Riwayat.";
         } finally {
           speedRunning = false;
           speedStartButton.disabled = false;
