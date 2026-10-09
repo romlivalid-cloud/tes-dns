@@ -1,0 +1,1083 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#10100f" />
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <title>Tes Kecepatan DNS</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #10100f;
+      --surface: #181816;
+      --surface-2: #21211e;
+      --line: #35342e;
+      --text: #f4f1e8;
+      --muted: #aaa79f;
+      --gold: #e4b84d;
+      --gold-strong: #ffd46b;
+      --gold-soft: #2d281a;
+      --green: #64d39a;
+      --green-soft: #182b22;
+      --red: #ef8c84;
+      --red-soft: #321e1b;
+      --blue: #86b8ea;
+      --shadow: 0 22px 60px rgba(0,0,0,.28);
+      --radius: 18px;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        color-scheme: dark;
+        --bg: #161511;
+        --surface: #201f1a;
+        --surface-2: #2a2821;
+        --line: #454137;
+        --text: #fffaf0;
+        --muted: #c1bbad;
+        --gold: #d4a62f;
+        --gold-strong: #f2c85a;
+        --gold-soft: #39301b;
+        --green: #75d8a7;
+        --green-soft: #20392d;
+        --red: #f09a91;
+        --red-soft: #3b2420;
+        --blue: #91c2ee;
+        --shadow: 0 18px 48px rgba(0,0,0,.25);
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 280px;
+      background:
+        linear-gradient(rgba(228,184,77,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(228,184,77,.035) 1px, transparent 1px),
+        var(--bg);
+      background-size: 38px 38px;
+      color: var(--text);
+      font-family: "IBM Plex Sans", sans-serif;
+      line-height: 1.5;
+    }
+    button { font: inherit; }
+    .page {
+      width: min(900px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: clamp(30px, 7vw, 72px) 0 64px;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 30px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--line);
+    }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 12px;
+      color: var(--gold-strong);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 22px;
+      height: 2px;
+      background: var(--gold);
+    }
+    h1 {
+      max-width: 680px;
+      margin: 0;
+      font-size: clamp(2rem, 6vw, 4.5rem);
+      line-height: .98;
+      letter-spacing: -.045em;
+      text-wrap: balance;
+    }
+    .lead {
+      max-width: 650px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 2vw, 1.15rem);
+    }
+    .count {
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .count strong { color: var(--text); font-family: "IBM Plex Mono", monospace; }
+
+    .control-panel {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 22px;
+      align-items: center;
+      margin-top: 28px;
+      padding: 22px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .control-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: var(--gold);
+    }
+    .control-title { margin: 0 0 5px; font-size: 1.05rem; font-weight: 700; }
+    .control-copy { margin: 0; color: var(--muted); font-size: .92rem; }
+    .primary {
+      min-width: 164px;
+      padding: 14px 20px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--gold);
+      color: #17140c;
+      font-weight: 700;
+      letter-spacing: .035em;
+      cursor: pointer;
+      box-shadow: 0 8px 22px rgba(228,184,77,.2);
+      transition: background .2s, transform .2s;
+    }
+    .primary:hover { background: var(--gold-strong); transform: translateY(-1px); }
+    .primary:focus-visible, .copy-button:focus-visible, .service-tab:focus-visible, summary:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+    .primary:disabled { opacity: .55; cursor: wait; transform: none; }
+
+    .service-tabs {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 6px;
+      margin: 26px 0 0;
+      padding: 0 8px;
+      border-bottom: 1px solid var(--gold);
+    }
+    .service-tab {
+      position: relative;
+      min-height: 48px;
+      padding: 11px 10px 10px;
+      border: 1px solid var(--line);
+      border-bottom: 0;
+      border-radius: 11px 11px 0 0;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-weight: 700;
+      cursor: pointer;
+      transition: color .2s, background .2s, border-color .2s;
+    }
+    .service-tab:hover { color: var(--text); border-color: var(--gold); }
+    .service-tab[aria-selected="true"] {
+      z-index: 1;
+      margin-bottom: -1px;
+      background: var(--gold-soft);
+      border-color: var(--gold);
+      border-bottom: 1px solid var(--gold-soft);
+      color: var(--gold-strong);
+    }
+    .service-panel { padding-top: 2px; }
+    .ip-panel {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
+      margin-top: 14px;
+      padding: 12px 16px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: .84rem;
+    }
+    .ip-panel strong { color: var(--text); font-family: "IBM Plex Mono", monospace; }
+    .connection-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--gold-soft);
+      color: var(--gold-strong);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .ip-context { flex-basis: 100%; font-size: .78rem; }
+
+    .auto-panel {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin-top: 14px;
+      padding: 15px 17px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--surface);
+    }
+    .switch { position: relative; flex: 0 0 auto; width: 48px; height: 27px; margin-top: 2px; }
+    .switch input {
+      appearance: none;
+      -webkit-appearance: none;
+      display: block;
+      width: 48px;
+      height: 27px;
+      margin: 0;
+      border: 1px solid var(--line);
+      border-radius: 99px;
+      background: var(--surface-2);
+      cursor: pointer;
+      transition: .2s;
+    }
+    .switch input::after { content: ""; display: block; width: 19px; height: 19px; margin: 3px; border-radius: 50%; background: var(--muted); transition: .2s; }
+    .switch input:checked { background: var(--gold); border-color: var(--gold); }
+    .switch input:checked::after { transform: translateX(21px); background: #17140c; }
+    .switch input:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+    .switch-track { display: none; }
+    .auto-copy strong { display: block; }
+    .auto-copy p { margin: 3px 0 0; color: var(--muted); font-size: .82rem; }
+    .alert-banner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      margin-top: 14px;
+      padding: 16px 18px;
+      border: 1px solid var(--gold);
+      border-radius: 12px;
+      background: var(--gold-soft);
+      box-shadow: 0 12px 34px rgba(228,184,77,.12);
+    }
+    .alert-banner strong { display: block; color: var(--gold-strong); }
+    .alert-banner p { margin: 3px 0 0; font-size: .88rem; }
+    .run-status { margin-top: 22px; }
+    .run-head { display: flex; justify-content: space-between; gap: 18px; margin-bottom: 9px; font-size: .9rem; }
+    .run-head strong { font-weight: 600; }
+    .run-head span { color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: .82rem; }
+    .track { height: 7px; overflow: hidden; border-radius: 99px; background: var(--surface-2); }
+    .fill { width: 0; height: 100%; background: var(--gold); border-radius: inherit; transition: width .28s ease; }
+
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 38px 0 15px;
+    }
+    h2 { margin: 0; font-size: clamp(1.25rem, 3vw, 1.7rem); letter-spacing: -.02em; }
+    .section-note { color: var(--muted); font-size: .88rem; }
+    .results { display: grid; gap: 9px; }
+    .provider {
+      display: grid;
+      grid-template-columns: 44px minmax(180px, 1.25fr) minmax(140px, 1fr) auto;
+      align-items: center;
+      gap: 16px;
+      min-height: 88px;
+      padding: 15px 18px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      transition: border-color .2s, background .2s;
+    }
+    .provider.winner { border-color: var(--gold); background: linear-gradient(90deg, var(--gold-soft), var(--surface) 48%); }
+    .rank {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: .82rem;
+    }
+    .winner .rank { background: var(--gold); color: #16130b; font-weight: 700; }
+    .provider-name { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+    .provider-name strong { font-size: 1rem; }
+    .fastest {
+      display: inline-flex;
+      padding: 3px 7px;
+      border-radius: 6px;
+      background: var(--gold);
+      color: #15120a;
+      font-size: .66rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+    }
+    .hostname { margin-top: 5px; color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: .73rem; overflow-wrap: anywhere; }
+    .badges { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+    .tag {
+      padding: 3px 7px;
+      border-radius: 6px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: .68rem;
+      white-space: nowrap;
+    }
+    .tag.on { color: var(--green); background: var(--green-soft); }
+    .tag.partial { color: var(--gold-strong); background: var(--gold-soft); }
+    .latency-bar { min-width: 0; }
+    .latency-track { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+    .latency-fill { height: 100%; width: 2%; border-radius: inherit; background: var(--gold); transition: width .55s ease; }
+    .bar-caption { margin-top: 6px; color: var(--muted); font-size: .74rem; }
+    .metric { min-width: 90px; text-align: right; }
+    .metric strong { display: block; font-family: "IBM Plex Mono", monospace; font-size: 1.08rem; }
+    .metric small { color: var(--muted); font-size: .72rem; }
+    .metric.failed strong { color: var(--red); font-family: "IBM Plex Sans", sans-serif; font-size: .87rem; }
+    .provider.testing .metric strong::after { content: ""; animation: dots 1.2s steps(4,end) infinite; }
+    @keyframes dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75%,100% { content: "..."; } }
+
+    .recommendations {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .rec {
+      display: flex;
+      flex-direction: column;
+      min-height: 205px;
+      padding: 20px;
+      background: var(--surface);
+      border-top: 3px solid var(--gold);
+      border-radius: 4px 4px 14px 14px;
+    }
+    .rec-label { margin-bottom: 18px; color: var(--gold-strong); font-size: .76rem; font-weight: 700; letter-spacing: .045em; text-transform: uppercase; }
+    .rec h3 { margin: 0; font-size: 1.18rem; }
+    .rec-host { margin: 8px 0 16px; color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: .76rem; overflow-wrap: anywhere; }
+    .copy-button {
+      margin-top: auto;
+      padding: 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .copy-button:hover { border-color: var(--gold); }
+    .empty-rec { color: var(--muted); font-size: .88rem; }
+
+    .instructions {
+      margin-top: 16px;
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+    .instructions h2 { margin-bottom: 18px; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; counter-reset: step; }
+    .step { counter-increment: step; position: relative; padding-top: 42px; }
+    .step::before {
+      content: counter(step, decimal-leading-zero);
+      position: absolute;
+      top: 0;
+      left: 0;
+      color: var(--gold-strong);
+      font-family: "IBM Plex Mono", monospace;
+      font-weight: 600;
+    }
+    .step strong { display: block; margin-bottom: 5px; }
+    .step p { margin: 0; color: var(--muted); font-size: .88rem; }
+    details { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 16px; }
+    summary { color: var(--muted); cursor: pointer; font-size: .88rem; }
+    details p { margin: 12px 0 0; color: var(--muted); font-size: .83rem; }
+    .apn-section {
+      margin-top: 18px;
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+    .apn-head { display: flex; justify-content: space-between; gap: 20px; align-items: end; margin-bottom: 18px; }
+    .apn-intro { max-width: 620px; margin: 6px 0 0; color: var(--muted); font-size: .88rem; }
+    .apn-tabs { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
+    .apn-tab {
+      padding: 9px 15px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .apn-tab[aria-selected="true"] { background: var(--gold); border-color: var(--gold); color: #17140c; }
+    .apn-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .apn-card { padding: 18px; background: var(--surface-2); border-radius: 12px; }
+    .apn-card h3 { margin: 0 0 3px; font-size: 1rem; }
+    .apn-card > p { margin: 0 0 13px; color: var(--muted); font-size: .78rem; }
+    .apn-fields { display: grid; gap: 1px; overflow: hidden; border: 1px solid var(--line); border-radius: 9px; background: var(--line); }
+    .apn-field { display: grid; grid-template-columns: 95px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 10px; background: var(--surface); }
+    .apn-key { color: var(--muted); font-size: .76rem; overflow-wrap: anywhere; }
+    .apn-value { min-width: 0; overflow-wrap: anywhere; font-family: "IBM Plex Mono", monospace; font-size: .74rem; font-weight: 600; }
+    .field-copy { width: 30px; height: 30px; padding: 0; border: 1px solid var(--line); border-radius: 7px; background: transparent; color: var(--text); cursor: pointer; line-height: 1; }
+    .field-copy:hover { border-color: var(--gold); color: var(--gold-strong); }
+    .apn-note { margin: 16px 0 0; padding: 12px 14px; background: var(--gold-soft); color: var(--text); border-radius: 9px; font-size: .83rem; }
+    .apn-path { margin: 14px 0 0; color: var(--muted); font-size: .83rem; }
+    .vpn-section {
+      margin-top: 18px;
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+    .vpn-intro { max-width: 690px; margin: 7px 0 0; color: var(--muted); font-size: .9rem; }
+    .vpn-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; margin-top: 20px; }
+    .vpn-card { padding: 18px; background: var(--surface-2); border-radius: 12px; }
+    .vpn-card h3 { margin: 0; font-size: 1.03rem; }
+    .vpn-plan { display: inline-block; margin: 8px 0 10px; padding: 3px 7px; border-radius: 6px; background: var(--gold-soft); color: var(--gold-strong); font-size: .72rem; font-weight: 700; }
+    .vpn-card p { margin: 0; color: var(--muted); font-size: .84rem; }
+    .vpn-note { margin: 18px 0 0; padding: 14px 16px; border: 1px solid var(--gold); border-radius: 10px; background: var(--gold-soft); font-size: .86rem; }
+    .footnote { margin: 18px 4px 0; color: var(--muted); font-size: .78rem; text-align: center; }
+    .creator-credit {
+      margin-top: 34px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .025em;
+      text-align: center;
+    }
+    .creator-credit strong { color: var(--gold-strong); }
+    .hidden { display: none !important; }
+    .toast {
+      position: fixed;
+      left: 50%; bottom: max(22px, env(safe-area-inset-bottom));
+      z-index: 20;
+      transform: translate(-50%, 18px);
+      padding: 10px 14px;
+      border-radius: 9px;
+      background: var(--text);
+      color: var(--bg);
+      font-weight: 600;
+      font-size: .86rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s, transform .2s;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 720px) {
+      .page { width: min(100% - 22px, 900px); padding-top: 28px; }
+      .hero { grid-template-columns: 1fr; gap: 18px; }
+      .service-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; padding: 0 3px; border-bottom: 0; }
+      .service-tab { border-bottom: 1px solid var(--line); border-radius: 10px; }
+      .service-tab[aria-selected="true"] { margin-bottom: 0; border-bottom-color: var(--gold); box-shadow: inset 0 -3px 0 var(--gold); }
+      .count { width: max-content; }
+      .control-panel { grid-template-columns: 1fr; }
+      .primary { width: 100%; }
+      .alert-banner { grid-template-columns: 1fr; }
+      .alert-banner .copy-button { width: 100%; }
+      .provider { grid-template-columns: 38px minmax(0, 1fr) auto; gap: 11px; padding: 14px 12px; }
+      .latency-bar { grid-column: 2 / -1; grid-row: 2; }
+      .metric { min-width: 75px; }
+      .recommendations { grid-template-columns: 1fr; }
+      .rec { min-height: 0; }
+      .steps { grid-template-columns: 1fr; }
+      .step { padding: 3px 0 3px 42px; }
+      .apn-head { display: block; }
+      .apn-grid, .vpn-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 390px) {
+      h1 { font-size: 2.2rem; }
+      .section-head { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .provider { grid-template-columns: 32px minmax(0, 1fr); }
+      .metric { grid-column: 2; text-align: left; display: flex; gap: 8px; align-items: baseline; }
+      .latency-bar { grid-column: 2; grid-row: auto; }
+      .badges { margin-top: 7px; }
+      .apn-section { padding: 18px 14px; }
+      .apn-field { grid-template-columns: 76px minmax(0, 1fr) auto; gap: 7px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero" aria-labelledby="main-title">
+      <div>
+        <p class="eyebrow">Uji dari jaringan ini</p>
+        <h1 id="main-title">DNS mana yang paling cepat di jaringanmu?</h1>
+        <p class="lead">Bandingkan 17 penyedia lewat DNS-over-HTTPS. Hasil diukur langsung dari perangkat ini—bukan dari server luar.</p>
+      </div>
+      <div class="count"><strong>17</strong> penyedia · <strong>136</strong> kueri</div>
+    </section>
+
+    <nav class="service-tabs" role="tablist" aria-label="Pilih layanan">
+      <button class="service-tab" id="tab-dns" type="button" role="tab" aria-selected="true" aria-controls="panel-dns" data-service="dns">Tes DNS</button>
+      <button class="service-tab" id="tab-telkomsel" type="button" role="tab" aria-selected="false" aria-controls="panel-telkomsel" tabindex="-1" data-service="telkomsel">APN Telkomsel</button>
+      <button class="service-tab" id="tab-indosat" type="button" role="tab" aria-selected="false" aria-controls="panel-indosat" tabindex="-1" data-service="indosat">APN Indosat</button>
+      <button class="service-tab" id="tab-xl" type="button" role="tab" aria-selected="false" aria-controls="panel-xl" tabindex="-1" data-service="xl">APN XL</button>
+      <button class="service-tab" id="tab-vpn" type="button" role="tab" aria-selected="false" aria-controls="panel-vpn" tabindex="-1" data-service="vpn">VPN</button>
+    </nav>
+
+    <div class="service-panel" id="panel-dns" role="tabpanel" aria-labelledby="tab-dns">
+    <section class="control-panel" aria-label="Kontrol pengujian">
+      <div>
+        <p class="control-title" id="controlTitle">Siap menguji</p>
+        <p class="control-copy" id="controlCopy">2 ronde × 4 domain untuk setiap penyedia. Sekitar 1–2 menit, tergantung jaringan.</p>
+      </div>
+      <button class="primary" id="startButton" type="button">MULAI TES</button>
+    </section>
+
+    <div class="ip-panel" id="ipPanel">
+      <span>Diukur dari IP: <strong id="publicIp">memuat…</strong></span>
+      <span class="connection-badge" id="connectionBadge">Koneksi: tidak terdeteksi</span>
+      <span class="ip-context">Hasil ini khusus untuk koneksi yang dipakai perangkatmu.</span>
+    </div>
+
+    <section class="auto-panel" aria-label="Pemantauan otomatis">
+      <label class="switch">
+        <input id="autoToggle" type="checkbox" aria-label="Pantau otomatis tiap 1 jam" />
+        <span class="switch-track" aria-hidden="true"></span>
+      </label>
+      <div class="auto-copy">
+        <strong>Pantau otomatis tiap 1 jam</strong>
+        <p>Saat aktif, tes ringkas 1 ronde berjalan selama halaman ini tetap terbuka. Browser tidak dapat mengganti DNS Pribadi HP secara otomatis; pergantian tetap manual di Pengaturan → DNS Pribadi.</p>
+      </div>
+    </section>
+
+    <div class="alert-banner hidden" id="changeBanner" role="alert">
+      <div><strong>Pemenang berubah</strong><p id="changeMessage"></p></div>
+      <button class="copy-button" id="copyChangedHost" type="button">Salin hostname</button>
+    </div>
+
+    <div class="run-status hidden" id="runStatus" aria-live="polite">
+      <div class="run-head"><strong id="statusText">Menyiapkan tes…</strong><span id="progressText">0 / 136</span></div>
+      <div class="track" aria-hidden="true"><div class="fill" id="progressFill"></div></div>
+    </div>
+
+    <section aria-labelledby="results-title">
+      <div class="section-head">
+        <h2 id="results-title">Peringkat respons</h2>
+        <span class="section-note">Median lebih kecil = lebih cepat</span>
+      </div>
+      <div class="results" id="results"></div>
+    </section>
+
+    <section id="recommendationSection" class="hidden" aria-labelledby="recommendation-title">
+      <div class="section-head">
+        <h2 id="recommendation-title">Pilihan terbaik</h2>
+        <span class="section-note">Berdasarkan hasil tes ini</span>
+      </div>
+      <div class="recommendations" id="recommendations"></div>
+    </section>
+
+    <section class="instructions" aria-labelledby="android-title">
+      <h2 id="android-title">Pasang di Android</h2>
+      <div class="steps">
+        <div class="step"><strong>Buka Pengaturan</strong><p>Masuk ke <b>Jaringan &amp; Internet</b>. Nama menu dapat sedikit berbeda menurut merek HP.</p></div>
+        <div class="step"><strong>Pilih DNS Pribadi</strong><p>Pilih opsi <b>Nama host penyedia DNS Pribadi</b>, bukan Otomatis.</p></div>
+        <div class="step"><strong>Tempel nama host</strong><p>Salin hostname dari rekomendasi di atas, tempel, lalu ketuk <b>Simpan</b>.</p></div>
+      </div>
+      <details>
+        <summary>Cara pengujian dan arti hasil</summary>
+        <p>Setiap penyedia menerima kueri DNS-over-HTTPS berformat standar untuk google.com, youtube.com, facebook.com, dan instagram.com sebanyak dua ronde. Waktu dihitung sejak permintaan dikirim hingga browser menerima respons jaringan. Karena perlindungan lintas situs browser membuat respons tidak dapat dibaca, tes ini mengukur waktu tempuh endpoint DoH tanpa memeriksa isi jawaban DNS. Penyedia yang berulang kali gagal di tingkat jaringan ditandai “tidak bisa dites”. Hasil bukan ukuran kekuatan sinyal, kecepatan unduh, atau kualitas streaming.</p>
+      </details>
+    </section>
+
+    <p class="footnote">Ulangi tes saat berganti Wi‑Fi atau data seluler karena rute jaringan dapat berubah.</p>
+    </div>
+
+    <div class="service-panel hidden" id="panel-telkomsel" role="tabpanel" aria-labelledby="tab-telkomsel">
+      <section class="apn-section" aria-labelledby="apn-telkomsel-title">
+        <div class="apn-head"><div>
+          <h2 id="apn-telkomsel-title">APN Telkomsel</h2>
+          <p class="apn-intro">Referensi pengaturan default dan alternatif Telkomsel. Salin setiap nilai yang dibutuhkan.</p>
+        </div></div>
+        <div id="apnPanel-TELKOMSEL"></div>
+        <p class="apn-note"><strong>Catatan:</strong> APN default bawaan kartu biasanya sudah paling optimal. Coba alternatif dan kembali ke default bila koneksi memburuk.</p>
+        <p class="apn-path"><strong>Langkah:</strong> Pengaturan → Jaringan Seluler → Nama Titik Akses (APN) → Tambah (+) → isi data → Simpan → pilih APN baru.</p>
+      </section>
+    </div>
+
+    <div class="service-panel hidden" id="panel-indosat" role="tabpanel" aria-labelledby="tab-indosat">
+      <section class="apn-section" aria-labelledby="apn-indosat-title">
+        <div class="apn-head"><div>
+          <h2 id="apn-indosat-title">APN Indosat</h2>
+          <p class="apn-intro">Referensi pengaturan default dan alternatif Indosat. Salin setiap nilai yang dibutuhkan.</p>
+        </div></div>
+        <div id="apnPanel-INDOSAT"></div>
+        <p class="apn-note"><strong>Catatan:</strong> APN default bawaan kartu biasanya sudah paling optimal. Coba alternatif dan kembali ke default bila koneksi memburuk.</p>
+        <p class="apn-path"><strong>Langkah:</strong> Pengaturan → Jaringan Seluler → Nama Titik Akses (APN) → Tambah (+) → isi data → Simpan → pilih APN baru.</p>
+      </section>
+    </div>
+
+    <div class="service-panel hidden" id="panel-xl" role="tabpanel" aria-labelledby="tab-xl">
+      <section class="apn-section" aria-labelledby="apn-xl-title">
+        <div class="apn-head"><div>
+          <h2 id="apn-xl-title">APN XL</h2>
+          <p class="apn-intro">Referensi pengaturan default dan alternatif XL. Salin setiap nilai yang dibutuhkan.</p>
+        </div></div>
+        <div id="apnPanel-XL"></div>
+        <p class="apn-note"><strong>Catatan:</strong> APN default bawaan kartu biasanya sudah paling optimal. Coba alternatif dan kembali ke default bila koneksi memburuk.</p>
+        <p class="apn-path"><strong>Langkah:</strong> Pengaturan → Jaringan Seluler → Nama Titik Akses (APN) → Tambah (+) → isi data → Simpan → pilih APN baru.</p>
+      </section>
+    </div>
+
+    <div class="service-panel hidden" id="panel-vpn" role="tabpanel" aria-labelledby="tab-vpn">
+      <section class="vpn-section" aria-labelledby="vpn-title">
+        <h2 id="vpn-title">Referensi VPN cepat</h2>
+        <p class="vpn-intro">Lima pilihan umum untuk dicoba, dari opsi gratis hingga layanan berbayar dengan jaringan server yang lebih luas.</p>
+        <div class="vpn-grid">
+          <article class="vpn-card"><h3>Cloudflare WARP</h3><span class="vpn-plan">Gratis · aplikasi 1.1.1.1</span><p>Pengaturan sederhana dan biasanya memilih jalur Cloudflare secara otomatis. Cocok sebagai percobaan pertama.</p></article>
+          <article class="vpn-card"><h3>Proton VPN</h3><span class="vpn-plan">Paket gratis tersedia</span><p>Opsi gratis tanpa batas data; pilihan server gratis lebih terbatas dibanding paket berbayar.</p></article>
+          <article class="vpn-card"><h3>NordVPN</h3><span class="vpn-plan">Berbayar</span><p>Jaringan server luas dan protokol modern. Pilih server terdekat untuk mengejar latensi rendah.</p></article>
+          <article class="vpn-card"><h3>Surfshark</h3><span class="vpn-plan">Berbayar</span><p>Mendukung banyak perangkat dalam satu akun dan menyediakan pilihan server di banyak lokasi.</p></article>
+          <article class="vpn-card"><h3>ExpressVPN</h3><span class="vpn-plan">Berbayar</span><p>Aplikasi mudah digunakan dengan pemilihan lokasi otomatis maupun manual.</p></article>
+        </div>
+        <p class="vpn-note"><strong>Catatan jujur:</strong> kecepatan VPN tidak bisa diukur dari halaman ini. Tes langsung lewat aplikasi masing-masing VPN dan pilih server yang paling dekat dari lokasimu. Daftar ini hanya titik awal, bukan hasil pengukuran.</p>
+      </section>
+    </div>
+
+    <footer class="creator-credit">Dibuat oleh <strong>romlidisduk</strong></footer>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Hostname disalin</div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var categories = ["iklan", "tracker", "malware", "dewasa", "judi", "sosmed"];
+      var providers = [
+        { name: "Cloudflare", host: "1dot1dot1dot1.cloudflare-dns.com", endpoint: "https://1dot1dot1dot1.cloudflare-dns.com/dns-query", block: {}, partial: {} },
+        { name: "AdGuard", host: "dns.adguard.com", endpoint: "https://dns.adguard.com/dns-query", block: {iklan:1,tracker:1}, partial: {malware:1,dewasa:1,judi:1,sosmed:1} },
+        { name: "AdGuard DNS", host: "dns.adguard-dns.com", endpoint: "https://dns.adguard-dns.com/dns-query", block: {iklan:1,tracker:1}, partial: {malware:1} },
+        { name: "Censurfridns Anycast", host: "anycast.censurfridns.dk", endpoint: "https://anycast.censurfridns.dk/dns-query", block: {}, partial: {iklan:1,tracker:1,malware:1,dewasa:1,judi:1,sosmed:1} },
+        { name: "Censurfridns Unicast", host: "unicast.censurfridns.dk", endpoint: "https://unicast.censurfridns.dk/dns-query", block: {}, partial: {iklan:1,tracker:1,malware:1,dewasa:1,judi:1,sosmed:1} },
+        { name: "Google", host: "dns.google", endpoint: "https://dns.google/dns-query", block: {}, partial: {} },
+        { name: "Quad9", host: "dns.quad9.net", endpoint: "https://dns.quad9.net:5053/dns-query", block: {malware:1}, partial: {} },
+        { name: "Tiarap", host: "dot.tiar.app", endpoint: "https://dot.tiar.app/dns-query", block: {iklan:1,tracker:1,malware:1}, partial: {dewasa:1,judi:1,sosmed:1} },
+        { name: "Control D Hagezi Pro", host: "x-hagezi-pro.freedns.controld.com", endpoint: "https://x-hagezi-pro.freedns.controld.com/dns-query", block: {iklan:1,tracker:1,malware:1}, partial: {dewasa:1,judi:1,sosmed:1} },
+        { name: "Control D P2", host: "p2.freedns.controld.com", endpoint: "https://p2.freedns.controld.com/dns-query", block: {iklan:1,tracker:1}, partial: {malware:1} },
+        { name: "Mullvad", host: "dns.mullvad.net", endpoint: "https://dns.mullvad.net/dns-query", block: {}, partial: {} },
+        { name: "Mullvad Adblock", host: "adblock.dns.mullvad.net", endpoint: "https://adblock.dns.mullvad.net/dns-query", block: {iklan:1,tracker:1}, partial: {malware:1} },
+        { name: "Mullvad Base", host: "base.dns.mullvad.net", endpoint: "https://base.dns.mullvad.net/dns-query", block: {iklan:1,tracker:1,malware:1}, partial: {} },
+        { name: "Mullvad Extended", host: "extended.dns.mullvad.net", endpoint: "https://extended.dns.mullvad.net/dns-query", block: {iklan:1,tracker:1,malware:1,sosmed:1}, partial: {} },
+        { name: "Mullvad Family", host: "family.dns.mullvad.net", endpoint: "https://family.dns.mullvad.net/dns-query", block: {iklan:1,tracker:1,malware:1,dewasa:1,judi:1}, partial: {sosmed:1} },
+        { name: "Mullvad All", host: "all.dns.mullvad.net", endpoint: "https://all.dns.mullvad.net/dns-query", block: {iklan:1,tracker:1,malware:1,dewasa:1,judi:1,sosmed:1}, partial: {} },
+        { name: "ZFYSora", host: "dns.zfysora.com", endpoint: "https://dns.zfysora.com/dns-query", block: {}, partial: {iklan:1,tracker:1,malware:1,dewasa:1,judi:1,sosmed:1} }
+      ];
+      var domains = ["google.com", "youtube.com", "facebook.com", "instagram.com"];
+      var apnData = {
+        TELKOMSEL: [
+          { title: "Default", note: "Paling aman", fields: [["Nama","Telkomsel Internet"],["APN","internet"],["Proxy/IP/Port","Kosongkan"],["User/Pass/Server","Kosongkan"],["MCC","510"],["MNC","10"],["Autentikasi","PAP atau CHAP"],["Jenis APN","default,supl"],["Protokol","IPv4"]] },
+          { title: "Alternatif", note: "Telkomsel 4G", fields: [["Nama","Telkomsel 4G"],["APN","internet"],["Username","wap"],["Password","wap123"],["MCC","510"],["MNC","10"],["Autentikasi","PAP"],["Jenis APN","default,supl"],["Protokol","IPv4"]] }
+        ],
+        INDOSAT: [
+          { title: "Default", note: "ISAT WAP", fields: [["Nama","ISAT WAP"],["APN","indosatgprs"],["Username","indosat"],["Password","indosat"],["MCC","510"],["MNC","01"],["Jenis APN","default,supl"],["Protokol","IPv4/IPv6"]] },
+          { title: "Alternatif", note: "Indosat 4G", fields: [["Nama","Indosat 4G"],["APN","indosatgprs"],["Proxy","10.19.19.19"],["Port","8080"],["Username","indosat"],["Password","indosat"],["MCC","510"],["MNC","01"],["Jenis APN","default,supl"],["Protokol","IPv4"]] }
+        ],
+        XL: [
+          { title: "Default", note: "XL Internet", fields: [["Nama","XL Internet"],["APN","internet"],["MCC","510"],["MNC","11"],["Autentikasi","PAP"],["Jenis APN","default,supl"],["Protokol","IPv4/IPv6"]] },
+          { title: "Alternatif", note: "XL 4G", fields: [["Nama","XL 4G"],["APN","www.xl4g.net"],["MCC","510"],["MNC","11"],["Autentikasi","PAP"],["Jenis APN","default,supl"],["Protokol","IPv4"]] }
+        ]
+      };
+      var rounds = 2;
+      var totalQueries = providers.length * domains.length * rounds;
+      var doneQueries = 0;
+      var running = false;
+      var lastWinner = null;
+      var autoTimer = null;
+      var changedHost = "";
+      var resultsEl = document.getElementById("results");
+      var startButton = document.getElementById("startButton");
+      var runStatus = document.getElementById("runStatus");
+      var statusText = document.getElementById("statusText");
+      var progressText = document.getElementById("progressText");
+      var progressFill = document.getElementById("progressFill");
+      var controlTitle = document.getElementById("controlTitle");
+      var controlCopy = document.getElementById("controlCopy");
+      var recommendationSection = document.getElementById("recommendationSection");
+      var recommendationsEl = document.getElementById("recommendations");
+      var publicIp = document.getElementById("publicIp");
+      var connectionBadge = document.getElementById("connectionBadge");
+      var networkConnection = navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
+
+      function getConnectionInfo() {
+        if (!networkConnection) {
+          return { badge: "Koneksi: tidak terdeteksi", measured: "diukur via koneksi tidak terdeteksi" };
+        }
+        var type = String(networkConnection.type || "").toLowerCase();
+        var effectiveType = String(networkConnection.effectiveType || "").toUpperCase();
+        if (type === "wifi") {
+          return { badge: "Koneksi: WiFi", measured: "diukur via WiFi" };
+        }
+        if (type === "cellular" || type === "wimax") {
+          var cellularLabel = effectiveType ? "Seluler (" + effectiveType + ")" : "Seluler";
+          return { badge: "Koneksi: " + cellularLabel, measured: "diukur via " + cellularLabel };
+        }
+        if (type === "ethernet") {
+          return { badge: "Koneksi: Kabel", measured: "diukur via Kabel" };
+        }
+        if (type === "bluetooth") {
+          return { badge: "Koneksi: Bluetooth", measured: "diukur via Bluetooth" };
+        }
+        return { badge: "Koneksi: tidak terdeteksi", measured: "diukur via koneksi tidak terdeteksi" };
+      }
+
+      function updateConnectionBadge() {
+        connectionBadge.textContent = getConnectionInfo().badge;
+      }
+
+      function loadPublicIp() {
+        return fetch("https://api.ipify.org?format=json", {
+          method: "GET",
+          mode: "cors",
+          credentials: "omit",
+          referrerPolicy: "no-referrer"
+        }).then(function (response) {
+          if (!response.ok) throw new Error("IP tidak tersedia");
+          return response.json();
+        }).then(function (data) {
+          if (!data || typeof data.ip !== "string" || !data.ip.trim()) throw new Error("IP tidak valid");
+          publicIp.textContent = data.ip.trim();
+        }).catch(function () {
+          publicIp.textContent = "tidak tersedia";
+        });
+      }
+
+      function median(values) {
+        if (!values.length) return null;
+        var sorted = values.slice().sort(function (a, b) { return a - b; });
+        var mid = Math.floor(sorted.length / 2);
+        return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"]/g, function (char) {
+          return ({"&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;"})[char];
+        });
+      }
+
+      function badgeHtml(provider) {
+        var tags = [];
+        categories.forEach(function (cat) {
+          if (provider.block[cat]) tags.push('<span class="tag on">blokir ' + cat + '</span>');
+          else if (provider.partial[cat]) tags.push('<span class="tag partial">sebagian ' + cat + '</span>');
+        });
+        if (!tags.length) tags.push('<span class="tag">tanpa pemblokiran</span>');
+        return tags.join("");
+      }
+
+      function providerHtml(provider, index, state) {
+        var metric = "—";
+        var caption = "belum diuji";
+        var cls = "provider";
+        var width = 2;
+        if (state === "testing") {
+          metric = "menguji";
+          caption = "mengirim kueri";
+          cls += " testing";
+        } else if (provider.failed) {
+          metric = "tidak bisa dites";
+          caption = provider.successes ? provider.successes + " probe selesai" : "endpoint tidak terjangkau";
+        } else if (provider.median != null) {
+          metric = Math.round(provider.median) + " ms";
+          caption = provider.successes + "/" + provider.attempts + " probe selesai";
+          width = provider.barWidth || 10;
+          if (provider.rank === 1) cls += " winner";
+        }
+        if (provider.measuredConnection && state !== "idle") caption += " · " + provider.measuredConnection;
+        return '<article class="' + cls + '" data-provider="' + index + '">' +
+          '<div class="rank">' + (provider.rank || (index + 1)) + '</div>' +
+          '<div><div class="provider-name"><strong>' + escapeHtml(provider.name) + '</strong>' + (provider.rank === 1 ? '<span class="fastest">TERCEPAT</span>' : '') + '</div>' +
+          '<div class="hostname">' + escapeHtml(provider.host) + '</div><div class="badges">' + badgeHtml(provider) + '</div></div>' +
+          '<div class="latency-bar"><div class="latency-track"><div class="latency-fill" style="width:' + width + '%"></div></div><div class="bar-caption">' + caption + '</div></div>' +
+          '<div class="metric' + (provider.failed ? ' failed' : '') + '"><strong>' + metric + '</strong><small>median</small></div>' +
+          '</article>';
+      }
+
+      function renderInitial() {
+        resultsEl.innerHTML = providers.map(function (p, i) { return providerHtml(p, i, "idle"); }).join("");
+      }
+
+      function updateProviderCard(index, state) {
+        var old = resultsEl.querySelector('[data-provider="' + index + '"]');
+        if (!old) return;
+        var holder = document.createElement("div");
+        holder.innerHTML = providerHtml(providers[index], index, state);
+        old.replaceWith(holder.firstChild);
+      }
+
+      function updateProgress(providerName, skipped) {
+        doneQueries += skipped || 1;
+        if (doneQueries > totalQueries) doneQueries = totalQueries;
+        statusText.textContent = "Menguji " + providerName;
+        progressText.textContent = doneQueries + " / " + totalQueries;
+        progressFill.style.width = ((doneQueries / totalQueries) * 100).toFixed(1) + "%";
+      }
+
+      function createDnsQuery(domain) {
+        var id = Math.floor(Math.random() * 65536);
+        var labels = domain.split(".");
+        var size = 12 + 4;
+        labels.forEach(function (label) { size += 1 + label.length; });
+        size += 1;
+        var bytes = new Uint8Array(size);
+        var view = new DataView(bytes.buffer);
+        view.setUint16(0, id);
+        view.setUint16(2, 0x0100);
+        view.setUint16(4, 1);
+        var offset = 12;
+        labels.forEach(function (label) {
+          bytes[offset++] = label.length;
+          for (var i = 0; i < label.length; i++) bytes[offset++] = label.charCodeAt(i);
+        });
+        bytes[offset++] = 0;
+        view.setUint16(offset, 1); offset += 2;
+        view.setUint16(offset, 1);
+        var binary = "";
+        for (var j = 0; j < bytes.length; j++) binary += String.fromCharCode(bytes[j]);
+        return { id: id, encoded: btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "") };
+      }
+
+      function fetchWithTimeout(url, timeoutMs) {
+        var controller = new AbortController();
+        var timer = setTimeout(function () { controller.abort(); }, timeoutMs);
+        var start = performance.now();
+        return fetch(url, {
+          method: "GET",
+          mode: "no-cors",
+          cache: "no-store",
+          credentials: "omit",
+          signal: controller.signal
+        }).then(function () {
+          return performance.now() - start;
+        }).finally(function () {
+          clearTimeout(timer);
+        });
+      }
+
+      async function testProvider(provider, index) {
+        provider.measuredConnection = getConnectionInfo().measured;
+        updateProviderCard(index, "testing");
+        var times = [];
+        var consecutiveFailures = 0;
+        var attempted = 0;
+        outer: for (var round = 0; round < rounds; round++) {
+          for (var d = 0; d < domains.length; d++) {
+            attempted++;
+            var separator = provider.endpoint.indexOf("?") >= 0 ? "&" : "?";
+            var query = createDnsQuery(domains[d]);
+            var url = provider.endpoint + separator + "dns=" + query.encoded;
+            try {
+              var elapsed = await fetchWithTimeout(url, 5000);
+              times.push(elapsed);
+              consecutiveFailures = 0;
+            } catch (error) {
+              consecutiveFailures++;
+              if (consecutiveFailures >= 2 && times.length === 0) {
+                updateProgress(provider.name, totalQueries / providers.length - attempted + 1);
+                break outer;
+              }
+            }
+            updateProgress(provider.name);
+          }
+        }
+        provider.attempts = attempted;
+        provider.successes = times.length;
+        provider.median = median(times);
+        provider.failed = times.length === 0;
+        updateProviderCard(index, "done");
+      }
+
+      async function runInPool(limit) {
+        var next = 0;
+        async function worker() {
+          while (next < providers.length) {
+            var index = next++;
+            await testProvider(providers[index], index);
+          }
+        }
+        var workers = [];
+        for (var i = 0; i < limit; i++) workers.push(worker());
+        await Promise.all(workers);
+      }
+
+      function sortAndRender() {
+        var valid = providers.filter(function (p) { return !p.failed && p.median != null; }).sort(function (a, b) { return a.median - b.median; });
+        var failed = providers.filter(function (p) { return p.failed || p.median == null; });
+        var max = valid.length ? Math.max.apply(null, valid.map(function (p) { return p.median; })) : 1;
+        valid.forEach(function (p, i) {
+          p.rank = i + 1;
+          p.barWidth = Math.max(8, Math.min(100, (p.median / max) * 100));
+        });
+        failed.forEach(function (p) { p.rank = null; });
+        var ordered = valid.concat(failed);
+        resultsEl.innerHTML = ordered.map(function (p, i) { return providerHtml(p, providers.indexOf(p), "done"); }).join("");
+        renderRecommendations(valid);
+        return { valid: valid.length, failed: failed.length };
+      }
+
+      function choose(valid, predicate) {
+        for (var i = 0; i < valid.length; i++) if (predicate(valid[i])) return valid[i];
+        return null;
+      }
+
+      function recHtml(label, provider) {
+        if (!provider) {
+          return '<article class="rec"><span class="rec-label">' + label + '</span><p class="empty-rec">Tidak ada penyedia yang memenuhi kategori ini dan berhasil dites.</p></article>';
+        }
+        return '<article class="rec"><span class="rec-label">' + label + '</span><h3>' + escapeHtml(provider.name) + '</h3><p class="rec-host">' + escapeHtml(provider.host) + '</p><button class="copy-button" type="button" data-copy="' + escapeHtml(provider.host) + '">Salin hostname</button></article>';
+      }
+
+      function renderRecommendations(valid) {
+        var fastest = valid[0] || null;
+        var adblock = choose(valid, function (p) { return !!p.block.iklan; });
+        var family = choose(valid, function (p) { return !!p.block.dewasa && !!p.block.judi; });
+        recommendationsEl.innerHTML = recHtml("Tercepat keseluruhan", fastest) + recHtml("Tercepat + blokir iklan", adblock) + recHtml("Tercepat family protection", family);
+        recommendationSection.classList.remove("hidden");
+      }
+
+      function resetProviders() {
+        providers.forEach(function (p) {
+          delete p.median; delete p.attempts; delete p.successes; delete p.failed; delete p.rank; delete p.barWidth; delete p.measuredConnection;
+        });
+      }
+
+      async function startTest(autoMode) {
+        if (running) return;
+        running = true;
+        updateConnectionBadge();
+        loadPublicIp();
+        rounds = autoMode ? 1 : 2;
+        totalQueries = providers.length * domains.length * rounds;
+        doneQueries = 0;
+        resetProviders();
+        renderInitial();
+        recommendationSection.classList.add("hidden");
+        runStatus.classList.remove("hidden");
+        progressFill.style.width = "0%";
+        progressText.textContent = "0 / " + totalQueries;
+        statusText.textContent = autoMode ? "Pemantauan otomatis berjalan…" : "Menyiapkan tes…";
+        startButton.disabled = true;
+        startButton.textContent = "SEDANG MENGUJI";
+        controlTitle.textContent = autoMode ? "Pengecekan otomatis" : "Tes sedang berjalan";
+        controlCopy.textContent = autoMode ? "Tes ringkas 1 ronde sedang memperbarui peringkat." : "Biarkan halaman tetap terbuka sampai semua penyedia selesai.";
+
+        await runInPool(4);
+        doneQueries = totalQueries;
+        progressText.textContent = totalQueries + " / " + totalQueries;
+        progressFill.style.width = "100%";
+        var summary = sortAndRender();
+        var valid = providers.filter(function (p) { return !p.failed && p.median != null; }).sort(function (a, b) { return a.median - b.median; });
+        var winner = valid[0] || null;
+        if (autoMode && lastWinner && winner && lastWinner.name !== winner.name) {
+          changedHost = winner.host;
+          document.getElementById("changeMessage").textContent = "DNS tercepat sekarang: " + winner.name + " — ganti DNS Pribadi-mu ke " + winner.host;
+          document.getElementById("changeBanner").classList.remove("hidden");
+        }
+        if (winner) lastWinner = { name: winner.name, host: winner.host };
+        statusText.textContent = autoMode ? "Pengecekan otomatis selesai" : "Tes selesai";
+        controlTitle.textContent = "Hasil siap";
+        controlCopy.textContent = summary.valid + " penyedia berhasil diuji · " + summary.failed + " tidak bisa dites dari browser ini.";
+        startButton.disabled = false;
+        startButton.textContent = "TES LAGI";
+        running = false;
+        if (!autoMode) recommendationSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function showToast(text) {
+        var toast = document.getElementById("toast");
+        toast.textContent = text;
+        toast.classList.add("show");
+        setTimeout(function () { toast.classList.remove("show"); }, 1700);
+      }
+
+      function copyText(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function () { showToast("Nilai disalin"); }).catch(function () { showToast("Tekan lama nilai untuk menyalin"); });
+        } else {
+          showToast("Tekan lama nilai untuk menyalin");
+        }
+      }
+
+      function renderApn(operator) {
+        var panel = document.getElementById("apnPanel-" + operator);
+        var cards = apnData[operator] || [];
+        panel.innerHTML = '<div class="apn-grid">' + cards.map(function (card) {
+          return '<article class="apn-card"><h3>' + escapeHtml(card.title) + '</h3><p>' + escapeHtml(card.note) + '</p><div class="apn-fields">' + card.fields.map(function (field) {
+            var disabled = field[1] === "Kosongkan";
+            return '<div class="apn-field"><span class="apn-key">' + escapeHtml(field[0]) + '</span><span class="apn-value">' + escapeHtml(field[1]) + '</span>' + (disabled ? '<span></span>' : '<button class="field-copy" type="button" aria-label="Salin ' + escapeHtml(field[0]) + '" data-field-copy="' + escapeHtml(field[1]) + '">⧉</button>') + '</div>';
+          }).join("") + '</div></article>';
+        }).join("") + '</div>';
+      }
+
+      startButton.addEventListener("click", function () { startTest(false); });
+      document.getElementById("autoToggle").addEventListener("change", function (event) {
+        if (event.target.checked) {
+          autoTimer = setInterval(function () { startTest(true); }, 60 * 60 * 1000);
+          showToast("Pemantauan otomatis aktif");
+        } else {
+          clearInterval(autoTimer);
+          autoTimer = null;
+          showToast("Pemantauan otomatis mati");
+        }
+      });
+      document.getElementById("copyChangedHost").addEventListener("click", function () {
+        if (changedHost) copyText(changedHost);
+      });
+      recommendationsEl.addEventListener("click", function (event) {
+        var button = event.target.closest("[data-copy]");
+        if (!button) return;
+        copyText(button.getAttribute("data-copy"));
+      });
+      function switchService(tab) {
+        var service = tab.getAttribute("data-service");
+        document.querySelectorAll(".service-tab").forEach(function (item) {
+          var selected = item === tab;
+          item.setAttribute("aria-selected", selected ? "true" : "false");
+          item.setAttribute("tabindex", selected ? "0" : "-1");
+        });
+        document.querySelectorAll(".service-panel").forEach(function (panel) {
+          panel.classList.toggle("hidden", panel.id !== "panel-" + service);
+        });
+      }
+
+      document.querySelector(".service-tabs").addEventListener("click", function (event) {
+        var tab = event.target.closest(".service-tab");
+        if (tab) switchService(tab);
+      });
+      document.querySelector(".service-tabs").addEventListener("keydown", function (event) {
+        if (["ArrowLeft", "ArrowRight", "Home", "End"].indexOf(event.key) === -1) return;
+        event.preventDefault();
+        var tabs = Array.prototype.slice.call(document.querySelectorAll(".service-tab"));
+        var current = tabs.indexOf(document.activeElement);
+        var next = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : (current + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+        tabs[next].focus();
+        switchService(tabs[next]);
+      });
+      document.addEventListener("click", function (event) {
+        var button = event.target.closest("[data-field-copy]");
+        if (button) copyText(button.getAttribute("data-field-copy"));
+      });
+
+      updateConnectionBadge();
+      if (networkConnection && typeof networkConnection.addEventListener === "function") {
+        networkConnection.addEventListener("change", updateConnectionBadge);
+      }
+      loadPublicIp();
+      renderInitial();
+      renderApn("TELKOMSEL");
+      renderApn("INDOSAT");
+      renderApn("XL");
+    })();
+  </script>
+</body>
+</html>
