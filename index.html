@@ -161,7 +161,7 @@
 
     .service-tabs {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(6, minmax(0, 1fr));
       gap: 6px;
       margin: 26px 0 0;
       padding: 0 8px;
@@ -425,6 +425,43 @@
     .field-copy:hover { border-color: var(--gold); color: var(--gold-strong); }
     .apn-note { margin: 16px 0 0; padding: 12px 14px; background: var(--gold-soft); color: var(--text); border-radius: 9px; font-size: .83rem; }
     .apn-path { margin: 14px 0 0; color: var(--muted); font-size: .83rem; }
+    .variant-section { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .variant-intro { max-width: 680px; margin: 7px 0 16px; color: var(--muted); font-size: .86rem; }
+    .variant-list { display: grid; gap: 8px; }
+    .variant-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface-2);
+    }
+    .variant-check { width: 22px; height: 22px; margin: 0; accent-color: var(--gold); cursor: pointer; }
+    .variant-name { display: block; font-family: "IBM Plex Mono", monospace; font-size: .88rem; }
+    .variant-setting { display: block; margin-top: 3px; color: var(--muted); font-size: .75rem; overflow-wrap: anywhere; }
+    .variant-copy, .variant-link {
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: .76rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .variant-copy:hover, .variant-link:hover { border-color: var(--gold); color: var(--gold-strong); }
+    .variant-copy:focus-visible, .variant-link:focus-visible, .variant-check:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+    .variant-guide { margin-top: 22px; }
+    .variant-guide h3 { margin: 0 0 12px; font-size: 1rem; }
+    .variant-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; counter-reset: variant-step; }
+    .variant-steps div { counter-increment: variant-step; padding: 12px; background: var(--surface-2); border-radius: 9px; color: var(--muted); font-size: .76rem; }
+    .variant-steps div::before { content: counter(variant-step); display: grid; place-items: center; width: 24px; height: 24px; margin-bottom: 8px; border-radius: 50%; background: var(--gold); color: #17140c; font-family: "IBM Plex Mono", monospace; font-weight: 700; }
+    .variant-truth { margin: 16px 0 0; color: var(--muted); font-size: .82rem; }
     .vpn-section {
       margin-top: 18px;
       padding: 24px;
@@ -439,6 +476,75 @@
     .vpn-plan { display: inline-block; margin: 8px 0 10px; padding: 3px 7px; border-radius: 6px; background: var(--gold-soft); color: var(--gold-strong); font-size: .72rem; font-weight: 700; }
     .vpn-card p { margin: 0; color: var(--muted); font-size: .84rem; }
     .vpn-note { margin: 18px 0 0; padding: 14px 16px; border: 1px solid var(--gold); border-radius: 10px; background: var(--gold-soft); font-size: .86rem; }
+    .connection-section {
+      margin-top: 18px;
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+    .connection-intro { max-width: 680px; margin: 7px 0 0; color: var(--muted); font-size: .9rem; }
+    .connection-guide {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      margin: 20px 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--line);
+      counter-reset: compare-step;
+    }
+    .connection-guide div { counter-increment: compare-step; padding: 15px; background: var(--surface-2); }
+    .connection-guide div::before { content: counter(compare-step, decimal-leading-zero); display: block; margin-bottom: 7px; color: var(--gold-strong); font-family: "IBM Plex Mono", monospace; font-size: .76rem; font-weight: 600; }
+    .connection-guide strong { display: block; font-size: .9rem; }
+    .connection-guide span { display: block; margin-top: 3px; color: var(--muted); font-size: .78rem; }
+    .honest-note { margin: 0 0 18px; padding: 13px 15px; border-left: 3px solid var(--gold); background: var(--gold-soft); font-size: .84rem; }
+    .speed-control {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--surface-2);
+    }
+    .speed-control strong { display: block; }
+    .speed-control p { margin: 4px 0 0; color: var(--muted); font-size: .82rem; }
+    .speed-status { margin-top: 16px; }
+    .speed-status .run-head { margin-bottom: 8px; }
+    .speed-results {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 16px;
+    }
+    .speed-result { min-height: 112px; padding: 16px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; }
+    .speed-result span { display: block; color: var(--muted); font-size: .76rem; }
+    .speed-result strong { display: block; margin-top: 8px; font-family: "IBM Plex Mono", monospace; font-size: clamp(1.35rem, 4vw, 2rem); line-height: 1.1; }
+    .speed-result small { display: block; margin-top: 6px; color: var(--muted); font-size: .72rem; }
+    .speed-error { margin: 14px 0 0; padding: 11px 13px; border-radius: 9px; background: var(--red-soft); color: var(--red); font-size: .84rem; }
+    .history-head { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-top: 30px; }
+    .history-head p { margin: 0; color: var(--muted); font-size: .78rem; }
+    .speed-history { display: grid; gap: 9px; margin-top: 12px; }
+    .history-empty { margin: 0; padding: 18px; border: 1px dashed var(--line); border-radius: 11px; color: var(--muted); text-align: center; font-size: .86rem; }
+    .history-item {
+      display: grid;
+      grid-template-columns: 88px minmax(120px, .8fr) repeat(2, minmax(86px, .55fr)) minmax(150px, 1fr);
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface-2);
+    }
+    .history-time, .history-network { color: var(--muted); font-size: .76rem; }
+    .history-value strong { display: block; font-family: "IBM Plex Mono", monospace; font-size: .98rem; }
+    .history-value span { color: var(--muted); font-size: .68rem; }
+    .history-label { width: 100%; min-width: 0; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; font-size: .8rem; }
+    .history-label::placeholder { color: var(--muted); }
+    .history-label:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-color: transparent; }
     .footnote { margin: 18px 4px 0; color: var(--muted); font-size: .78rem; text-align: center; }
     .creator-credit {
       margin-top: 34px;
@@ -490,6 +596,15 @@
       .step { padding: 3px 0 3px 42px; }
       .apn-head { display: block; }
       .apn-grid, .vpn-grid { grid-template-columns: 1fr; }
+      .connection-guide, .speed-results { grid-template-columns: 1fr; }
+      .speed-control { grid-template-columns: 1fr; }
+      .history-head { align-items: flex-start; flex-direction: column; gap: 3px; }
+      .history-item { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .history-network { text-align: right; }
+      .history-label { grid-column: 1 / -1; }
+      .variant-item { grid-template-columns: auto minmax(0, 1fr) auto; }
+      .variant-link { grid-column: 2 / -1; text-align: center; }
+      .variant-steps { grid-template-columns: 1fr; }
     }
     @media (max-width: 390px) {
       h1 { font-size: 2.2rem; }
@@ -498,8 +613,10 @@
       .metric { grid-column: 2; text-align: left; display: flex; gap: 8px; align-items: baseline; }
       .latency-bar { grid-column: 2; grid-row: auto; }
       .badges { margin-top: 7px; }
-      .apn-section { padding: 18px 14px; }
+      .apn-section, .connection-section { padding: 18px 14px; }
       .apn-field { grid-template-columns: 76px minmax(0, 1fr) auto; gap: 7px; }
+      .variant-item { grid-template-columns: auto minmax(0, 1fr); }
+      .variant-copy, .variant-link { grid-column: 2; width: 100%; text-align: center; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
@@ -519,6 +636,7 @@
 
     <nav class="service-tabs" role="tablist" aria-label="Pilih layanan">
       <button class="service-tab" id="tab-dns" type="button" role="tab" aria-selected="true" aria-controls="panel-dns" data-service="dns">Tes DNS</button>
+      <button class="service-tab" id="tab-connection" type="button" role="tab" aria-selected="false" aria-controls="panel-connection" tabindex="-1" data-service="connection">Tes Koneksi</button>
       <button class="service-tab" id="tab-telkomsel" type="button" role="tab" aria-selected="false" aria-controls="panel-telkomsel" tabindex="-1" data-service="telkomsel">APN Telkomsel</button>
       <button class="service-tab" id="tab-indosat" type="button" role="tab" aria-selected="false" aria-controls="panel-indosat" tabindex="-1" data-service="indosat">APN Indosat</button>
       <button class="service-tab" id="tab-xl" type="button" role="tab" aria-selected="false" aria-controls="panel-xl" tabindex="-1" data-service="xl">APN XL</button>
@@ -593,6 +711,49 @@
     <p class="footnote">Ulangi tes saat berganti Wi‑Fi atau data seluler karena rute jaringan dapat berubah.</p>
     </div>
 
+    <div class="service-panel hidden" id="panel-connection" role="tabpanel" aria-labelledby="tab-connection">
+      <section class="connection-section" aria-labelledby="connection-title">
+        <h2 id="connection-title">Bandingkan koneksi sebelum dan sesudah ganti APN</h2>
+        <p class="connection-intro">Ukur ping dan kecepatan unduh dari koneksi yang sedang dipakai. Hasil otomatis masuk ke Riwayat selama halaman ini tetap terbuka.</p>
+
+        <div class="connection-guide" aria-label="Langkah membandingkan APN">
+          <div><strong>Tes APN sekarang</strong><span>Jalankan tes, lalu beri label seperti “internet”.</span></div>
+          <div><strong>Ganti APN di Pengaturan</strong><span>Kembali ke halaman ini setelah koneksi aktif lagi.</span></div>
+          <div><strong>Tes lagi dan bandingkan</strong><span>Ping lebih kecil dan Mbps lebih besar biasanya lebih baik.</span></div>
+        </div>
+
+        <p class="honest-note"><strong>Perbandingan dilakukan manual.</strong> Browser tidak bisa mengganti APN HP secara otomatis. Riwayat dan tanda centang hanya bertahan selama halaman tetap terbuka.</p>
+
+        <div class="speed-control">
+          <div>
+            <strong id="speedControlTitle">Siap menguji koneksi</strong>
+            <p id="speedControlCopy">Tes memakai beberapa endpoint untuk ping dan sekitar 5 MB data untuk mengukur unduhan.</p>
+          </div>
+          <button class="primary" id="speedStartButton" type="button">MULAI TES</button>
+        </div>
+
+        <div class="speed-status hidden" id="speedStatus" aria-live="polite">
+          <div class="run-head"><strong id="speedStatusText">Menyiapkan tes…</strong><span id="speedProgressText">0%</span></div>
+          <div class="track" aria-hidden="true"><div class="fill" id="speedProgressFill"></div></div>
+        </div>
+
+        <div class="speed-results" id="speedResults" aria-live="polite">
+          <div class="speed-result"><span>Ping median</span><strong id="speedPing">—</strong><small>RTT beberapa endpoint</small></div>
+          <div class="speed-result"><span>Kecepatan unduh</span><strong id="speedDownload">—</strong><small>Megabit per detik</small></div>
+          <div class="speed-result"><span>Jenis koneksi</span><strong id="speedConnection">—</strong><small>Deteksi browser</small></div>
+        </div>
+        <p class="speed-error hidden" id="speedError" role="alert"></p>
+
+        <div class="history-head">
+          <h2>Riwayat</h2>
+          <p>tersimpan di tab ini sampai halaman ditutup atau dimuat ulang</p>
+        </div>
+        <div class="speed-history" id="speedHistory">
+          <p class="history-empty">Belum ada hasil. Jalankan tes pertama, lalu beri label APN.</p>
+        </div>
+      </section>
+    </div>
+
     <div class="service-panel hidden" id="panel-telkomsel" role="tabpanel" aria-labelledby="tab-telkomsel">
       <section class="apn-section" aria-labelledby="apn-telkomsel-title">
         <div class="apn-head"><div>
@@ -600,6 +761,24 @@
           <p class="apn-intro">Referensi pengaturan default dan alternatif Telkomsel. Salin setiap nilai yang dibutuhkan.</p>
         </div></div>
         <div id="apnPanel-TELKOMSEL"></div>
+
+        <section class="variant-section" aria-labelledby="variant-title">
+          <h2 id="variant-title">Varian APN untuk dicoba</h2>
+          <p class="variant-intro">Centang setelah dicoba. Tanda centang hanya tersimpan selama halaman ini tetap terbuka.</p>
+          <div class="variant-list" id="variantList"></div>
+          <div class="variant-guide">
+            <h3>Alur uji satu per satu</h3>
+            <div class="variant-steps">
+              <div>Pilih satu varian dari daftar.</div>
+              <div>Masukkan ke pengaturan APN HP.</div>
+              <div>Buka Tes Koneksi, jalankan tes, lalu beri label sesuai nama varian.</div>
+              <div>Ulangi langkah yang sama untuk varian lain.</div>
+              <div>Bandingkan ping dan Mbps di Riwayat.</div>
+            </div>
+          </div>
+          <p class="variant-truth"><strong>Tidak ada satu varian yang selalu tercepat untuk semua orang.</strong> Hasil dipengaruhi lokasi, kepadatan jaringan, perangkat, dan kebijakan operator; yang tercepat hanya bisa diketahui dengan mencoba satu per satu di lokasimu.</p>
+        </section>
+
         <p class="apn-note"><strong>Catatan:</strong> APN default bawaan kartu biasanya sudah paling optimal. Coba alternatif dan kembali ke default bila koneksi memburuk.</p>
         <p class="apn-path"><strong>Langkah:</strong> Pengaturan → Jaringan Seluler → Nama Titik Akses (APN) → Tambah (+) → isi data → Simpan → pilih APN baru.</p>
       </section>
@@ -688,6 +867,16 @@
           { title: "Alternatif", note: "XL 4G", fields: [["Nama","XL 4G"],["APN","www.xl4g.net"],["MCC","510"],["MNC","11"],["Autentikasi","PAP"],["Jenis APN","default,supl"],["Protokol","IPv4"]] }
         ]
       };
+      var telkomselVariants = [
+        { name: "internet (default)", apn: "internet", summary: "user/pass kosong", copy: "Nama: internet (default)\nAPN: internet\nUsername: kosong\nPassword: kosong" },
+        { name: "Telkomsel", apn: "Telkomsel", summary: "user wap · pass wap123", copy: "Nama: Telkomsel\nAPN: Telkomsel\nUsername: wap\nPassword: wap123" },
+        { name: "telkomsel4g", apn: "telkomsel4g", summary: "user wap · pass wap123", copy: "Nama: telkomsel4g\nAPN: telkomsel4g\nUsername: wap\nPassword: wap123" },
+        { name: "aha", apn: "aha", summary: "proxy 10.7.246.194 · port 80", copy: "Nama: aha\nAPN: aha\nProxy: 10.7.246.194\nPort: 80" },
+        { name: "omnitel", apn: "omnitel", summary: "user omni · pass omni", copy: "Nama: omnitel\nAPN: omnitel\nUsername: omni\nPassword: omni" },
+        { name: "nxtgenphone", apn: "nxtgenphone", summary: "user/pass kosong", copy: "Nama: nxtgenphone\nAPN: nxtgenphone\nUsername: kosong\nPassword: kosong" },
+        { name: "telkomsel5g", apn: "telkomsel5g", summary: "user wap · pass wap123", copy: "Nama: telkomsel5g\nAPN: telkomsel5g\nUsername: wap\nPassword: wap123" },
+        { name: "internet-enterprise", apn: "internet-enterprise", summary: "user orange · pass orange", copy: "Nama: internet-enterprise\nAPN: internet-enterprise\nUsername: orange\nPassword: orange" }
+      ];
       var rounds = 2;
       var totalQueries = providers.length * domains.length * rounds;
       var doneQueries = 0;
@@ -707,6 +896,18 @@
       var recommendationsEl = document.getElementById("recommendations");
       var publicIp = document.getElementById("publicIp");
       var connectionBadge = document.getElementById("connectionBadge");
+      var speedStartButton = document.getElementById("speedStartButton");
+      var speedStatus = document.getElementById("speedStatus");
+      var speedStatusText = document.getElementById("speedStatusText");
+      var speedProgressText = document.getElementById("speedProgressText");
+      var speedProgressFill = document.getElementById("speedProgressFill");
+      var speedPing = document.getElementById("speedPing");
+      var speedDownload = document.getElementById("speedDownload");
+      var speedConnection = document.getElementById("speedConnection");
+      var speedError = document.getElementById("speedError");
+      var speedHistory = document.getElementById("speedHistory");
+      var speedRunning = false;
+      var speedRuns = [];
       var networkConnection = navigator.connection || navigator.mozConnection || navigator.webkitConnection || null;
 
       function getConnectionInfo() {
@@ -864,6 +1065,140 @@
         });
       }
 
+      function connectionLabel() {
+        var info = getConnectionInfo();
+        return info.badge.replace(/^Koneksi:\s*/, "");
+      }
+
+      function setSpeedProgress(percent, text) {
+        speedStatus.classList.remove("hidden");
+        speedProgressFill.style.width = percent + "%";
+        speedProgressText.textContent = percent + "%";
+        speedStatusText.textContent = text;
+      }
+
+      function pingEndpoint(url, timeoutMs) {
+        var controller = new AbortController();
+        var timer = setTimeout(function () { controller.abort(); }, timeoutMs);
+        var separator = url.indexOf("?") >= 0 ? "&" : "?";
+        var started = performance.now();
+        return fetch(url + separator + "t=" + Date.now() + "-" + Math.random(), {
+          method: "GET",
+          mode: "no-cors",
+          cache: "no-store",
+          credentials: "omit",
+          signal: controller.signal
+        }).then(function () {
+          return performance.now() - started;
+        }).finally(function () {
+          clearTimeout(timer);
+        });
+      }
+
+      async function measurePing() {
+        var endpoints = [
+          "https://speed.cloudflare.com/__down?bytes=0",
+          "https://www.google.com/generate_204",
+          "https://cp.cloudflare.com/generate_204"
+        ];
+        var samples = [];
+        for (var round = 0; round < 2; round++) {
+          for (var i = 0; i < endpoints.length; i++) {
+            try {
+              samples.push(await pingEndpoint(endpoints[i], 4000));
+            } catch (error) {
+              /* Satu endpoint boleh gagal; median memakai sampel yang berhasil. */
+            }
+            setSpeedProgress(10 + Math.round(((round * endpoints.length + i + 1) / 6) * 45), "Mengukur ping ke beberapa endpoint…");
+          }
+        }
+        if (samples.length < 3) throw new Error("Ping tidak cukup terbaca dari browser ini.");
+        return median(samples);
+      }
+
+      async function measureDownload() {
+        var bytesRequested = 5000000;
+        var controller = new AbortController();
+        var timer = setTimeout(function () { controller.abort(); }, 20000);
+        var started = performance.now();
+        try {
+          var response = await fetch("https://speed.cloudflare.com/__down?bytes=" + bytesRequested + "&t=" + Date.now(), {
+            method: "GET",
+            mode: "cors",
+            cache: "no-store",
+            credentials: "omit",
+            signal: controller.signal
+          });
+          if (!response.ok) throw new Error("Server unduhan menolak tes.");
+          var buffer = await response.arrayBuffer();
+          var elapsedSeconds = (performance.now() - started) / 1000;
+          if (buffer.byteLength < bytesRequested * 0.9 || elapsedSeconds <= 0) throw new Error("Data unduhan tidak lengkap.");
+          return (buffer.byteLength * 8) / elapsedSeconds / 1000000;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+
+      function renderSpeedHistory() {
+        if (!speedRuns.length) {
+          speedHistory.innerHTML = '<p class="history-empty">Belum ada hasil. Jalankan tes pertama, lalu beri label APN.</p>';
+          return;
+        }
+        speedHistory.innerHTML = speedRuns.map(function (run, index) {
+          return '<article class="history-item">' +
+            '<time class="history-time" datetime="' + escapeHtml(run.iso) + '">' + escapeHtml(run.time) + '</time>' +
+            '<span class="history-network">' + escapeHtml(run.connection) + '</span>' +
+            '<div class="history-value"><strong>' + Math.round(run.ping) + ' ms</strong><span>ping</span></div>' +
+            '<div class="history-value"><strong>' + run.download.toFixed(1) + ' Mbps</strong><span>unduh</span></div>' +
+            '<input class="history-label" type="text" maxlength="40" aria-label="Label APN untuk hasil pukul ' + escapeHtml(run.time) + '" placeholder="Label, mis. APN default" value="' + escapeHtml(run.label) + '" data-history-index="' + index + '" />' +
+            '</article>';
+        }).join("");
+      }
+
+      async function startConnectionTest() {
+        if (speedRunning) return;
+        speedRunning = true;
+        speedStartButton.disabled = true;
+        speedStartButton.textContent = "SEDANG MENGUJI";
+        document.getElementById("speedControlTitle").textContent = "Tes sedang berjalan";
+        document.getElementById("speedControlCopy").textContent = "Biarkan halaman terbuka dan hindari unduhan lain sampai selesai.";
+        speedError.classList.add("hidden");
+        speedPing.textContent = "—";
+        speedDownload.textContent = "—";
+        speedConnection.textContent = connectionLabel();
+        setSpeedProgress(5, "Menyiapkan beberapa endpoint…");
+        try {
+          var ping = await measurePing();
+          speedPing.textContent = Math.round(ping) + " ms";
+          setSpeedProgress(65, "Mengunduh data uji 5 MB…");
+          var download = await measureDownload();
+          speedDownload.textContent = download.toFixed(1) + " Mbps";
+          setSpeedProgress(100, "Tes koneksi selesai");
+          var now = new Date();
+          speedRuns.unshift({
+            iso: now.toISOString(),
+            time: now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+            connection: connectionLabel(),
+            ping: ping,
+            download: download,
+            label: ""
+          });
+          renderSpeedHistory();
+          document.getElementById("speedControlTitle").textContent = "Hasil siap dibandingkan";
+          document.getElementById("speedControlCopy").textContent = "Beri label APN di Riwayat, lalu ganti APN dan tes lagi.";
+        } catch (error) {
+          speedError.textContent = (error && error.message ? error.message : "Tes koneksi gagal.") + " Coba lagi setelah memastikan internet aktif.";
+          speedError.classList.remove("hidden");
+          setSpeedProgress(100, "Tes tidak selesai");
+          document.getElementById("speedControlTitle").textContent = "Tes belum berhasil";
+          document.getElementById("speedControlCopy").textContent = "Tidak ada hasil yang ditambahkan ke Riwayat.";
+        } finally {
+          speedRunning = false;
+          speedStartButton.disabled = false;
+          speedStartButton.textContent = "TES LAGI";
+        }
+      }
+
       async function testProvider(provider, index) {
         provider.measuredConnection = getConnectionInfo().measured;
         updateProviderCard(index, "testing");
@@ -1019,7 +1354,26 @@
         }).join("") + '</div>';
       }
 
+      function renderVariants() {
+        var list = document.getElementById("variantList");
+        list.innerHTML = telkomselVariants.map(function (variant, index) {
+          return '<article class="variant-item">' +
+            '<input class="variant-check" type="checkbox" aria-label="Tandai ' + escapeHtml(variant.name) + ' sudah dicoba" />' +
+            '<div><strong class="variant-name">' + escapeHtml(variant.name) + '</strong><span class="variant-setting">APN ' + escapeHtml(variant.apn) + ' · ' + escapeHtml(variant.summary) + '</span></div>' +
+            '<button class="variant-copy" type="button" data-variant-copy="' + index + '">Salin</button>' +
+            '<button class="variant-link" type="button" data-open-connection="true">Tes Koneksi</button>' +
+            '</article>';
+        }).join("");
+      }
+
       startButton.addEventListener("click", function () { startTest(false); });
+      speedStartButton.addEventListener("click", startConnectionTest);
+      speedHistory.addEventListener("input", function (event) {
+        var input = event.target.closest("[data-history-index]");
+        if (!input) return;
+        var index = Number(input.getAttribute("data-history-index"));
+        if (speedRuns[index]) speedRuns[index].label = input.value;
+      });
       document.getElementById("autoToggle").addEventListener("change", function (event) {
         if (event.target.checked) {
           autoTimer = setInterval(function () { startTest(true); }, 60 * 60 * 1000);
@@ -1064,8 +1418,20 @@
         switchService(tabs[next]);
       });
       document.addEventListener("click", function (event) {
-        var button = event.target.closest("[data-field-copy]");
-        if (button) copyText(button.getAttribute("data-field-copy"));
+        var fieldButton = event.target.closest("[data-field-copy]");
+        if (fieldButton) copyText(fieldButton.getAttribute("data-field-copy"));
+        var variantButton = event.target.closest("[data-variant-copy]");
+        if (variantButton) {
+          var variant = telkomselVariants[Number(variantButton.getAttribute("data-variant-copy"))];
+          if (variant) copyText(variant.copy);
+        }
+        var connectionButton = event.target.closest("[data-open-connection]");
+        if (connectionButton) {
+          var connectionTab = document.getElementById("tab-connection");
+          switchService(connectionTab);
+          connectionTab.focus();
+          document.getElementById("connection-title").scrollIntoView({ behavior: "smooth", block: "start" });
+        }
       });
 
       updateConnectionBadge();
@@ -1077,6 +1443,7 @@
       renderApn("TELKOMSEL");
       renderApn("INDOSAT");
       renderApn("XL");
+      renderVariants();
     })();
   </script>
 </body>
